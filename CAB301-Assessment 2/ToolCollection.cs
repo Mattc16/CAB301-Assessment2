@@ -3,7 +3,6 @@
 
 
 using System;
-using System.Collections.Generic;
 //A class that models a node of Binary Tree
 public class BTreeNode
 {
@@ -54,29 +53,29 @@ partial class ToolCollection : IToolCollection
     // Post-condition: the new tool is added into this tool collection, new Number = old Number + 1 and return true; otherwise, the new tool is not added into this tool collection, new Number = old Number and return false.
 
     public bool Insert(ITool tool)
-	{
-        if (Search(tool.Name) != null)
-            return false;
-
+    {
+        int initialCount = count;
         root = InsertHelper(root, tool);
-        count++;
-        return true;
+        return count > initialCount;
     }
 
-
-    private BTreeNode InsertHelper(BTreeNode? node, ITool tool)
+    private BTreeNode InsertHelper(BTreeNode node, ITool tool)
     {
         if (node == null)
+        {
+            count++;
             return new BTreeNode(tool);
-        
+        }
+
         int cmp = tool.Name.CompareTo(node.tool.Name);
         if (cmp < 0)
             node.lchild = InsertHelper(node.lchild, tool);
-        else
+        else if (cmp > 0)
             node.rchild = InsertHelper(node.rchild, tool);
 
         return node;
     }
+
 
 
     // Delete a tool from this tool collection
@@ -86,13 +85,12 @@ partial class ToolCollection : IToolCollection
 
     public bool Delete(ITool tool)
     {
-        int initialNumber = count;
+        int initialCount = count;
         root = DeleteHelper(root, tool.Name);
-        return count < initialNumber;
+        return count < initialCount;
     }
 
-
-    private BTreeNode? DeleteHelper(BTreeNode? node, string toolName)
+    private BTreeNode DeleteHelper(BTreeNode node, string toolName)
     {
         if (node == null)
             return null;
@@ -104,20 +102,20 @@ partial class ToolCollection : IToolCollection
             node.rchild = DeleteHelper(node.rchild, toolName);
         else
         {
+            count--;
             if (node.lchild == null)
                 return node.rchild;
             else if (node.rchild == null)
                 return node.lchild;
             else
             {
-                BTreeNode? temp = MinValueNode(node.rchild);
+                BTreeNode temp = MinValueNode(node.rchild);
                 node.tool = temp.tool;
                 node.rchild = DeleteHelper(node.rchild, temp.tool.Name);
             }
         }
         return node;
     }
-
 
     private BTreeNode MinValueNode(BTreeNode node)
     {
@@ -126,6 +124,7 @@ partial class ToolCollection : IToolCollection
             current = current.lchild;
         return current;
     }
+    
 
 
     // Search for a tool by its name in this tool collection  
@@ -133,24 +132,22 @@ partial class ToolCollection : IToolCollection
     // post: return the reference of the tool object if the tool is in this tool collection;
     //	     otherwise, return null. New Number = old Number.
     public ITool? Search(string toolName)
-	{
-        BTreeNode? result = SearchHelper(root, toolName);
-        return result == null ? null : result.tool;
+    {
+        return SearchHelper(root, toolName)?.tool;
     }
-
 
     private BTreeNode? SearchHelper(BTreeNode? node, string toolName)
     {
-    if (node == null)
-        return null;
+        if (node == null)
+            return null;
 
-    int cmp = toolName.CompareTo(node.tool.Name);
-    if (cmp == 0)
-        return node;
-    else if (cmp < 0)
-        return SearchHelper(node.lchild, toolName);
-    else
-        return SearchHelper(node.rchild, toolName);
+        int cmp = toolName.CompareTo(node.tool.Name);
+        if (cmp < 0)
+            return SearchHelper(node.lchild, toolName);
+        else if (cmp > 0)
+            return SearchHelper(node.rchild, toolName);
+        else
+            return node;
     }
 
 
@@ -158,22 +155,21 @@ partial class ToolCollection : IToolCollection
     // Pre-condition: nil
     // Post-condition: return an array that contains all the tools in this tool collection and the tools in the array are sorted in alphabetical order by their names and new Number = old Number.
     public ITool[] ToArray()
-	{
-        List<ITool> sortedToolList = new List<ITool>();
-        InOrderTraversal(root, sortedToolList);
-        return sortedToolList.ToArray();
+    {
+        List<ITool> tools = new List<ITool>();
+        InOrderTraversal(root, tools);
+        return tools.ToArray();
     }
 
-
-    private void InOrderTraversal(BTreeNode? node, List<ITool> sortedToolsList)
+    private void InOrderTraversal(BTreeNode? node, List<ITool> tools)
     {
         if (node != null)
         {
-            InOrderTraversal(node.lchild, sortedToolsList);
-            sortedToolsList.Add(node.tool);
-            InOrderTraversal(node.rchild, sortedToolsList);
+            InOrderTraversal(node.lchild, tools);
+            tools.Add(node.tool);
+            InOrderTraversal(node.rchild, tools);
         }
-    } 
+    }
 
 
     // Clear this tool collection
