@@ -109,22 +109,16 @@ partial class ToolCollection : IToolCollection
                 return node.lchild;
             else
             {
-                BTreeNode temp = MinValueNode(node.rchild);
-                node.tool = temp.tool;
-                node.rchild = DeleteHelper(node.rchild, temp.tool.Name);
+                BTreeNode minNode = node.rchild;
+                while (minNode.lchild != null)
+                    minNode = minNode.lchild;
+
+                node.tool = minNode.tool;
+                node.rchild = DeleteHelper(node.rchild, minNode.tool.Name);
             }
         }
         return node;
     }
-
-    private BTreeNode MinValueNode(BTreeNode node)
-    {
-        BTreeNode current = node;
-        while (current.lchild != null)
-            current = current.lchild;
-        return current;
-    }
-    
 
 
     // Search for a tool by its name in this tool collection  
@@ -156,19 +150,28 @@ partial class ToolCollection : IToolCollection
     // Post-condition: return an array that contains all the tools in this tool collection and the tools in the array are sorted in alphabetical order by their names and new Number = old Number.
     public ITool[] ToArray()
     {
-        List<ITool> tools = new List<ITool>();
-        InOrderTraversal(root, tools);
-        return tools.ToArray();
+        int count = CountNodes(root);
+        ITool[] tools = new ITool[count];
+        FillArray(root, tools, 0);
+        return tools;
     }
 
-    private void InOrderTraversal(BTreeNode? node, List<ITool> tools)
+    private int CountNodes(BTreeNode? node)
+    {
+        if (node == null)
+            return 0;
+        return 1 + CountNodes(node.lchild) + CountNodes(node.rchild);
+    }
+
+    private int FillArray(BTreeNode? node, ITool[] tools, int index)
     {
         if (node != null)
         {
-            InOrderTraversal(node.lchild, tools);
-            tools.Add(node.tool);
-            InOrderTraversal(node.rchild, tools);
+            index = FillArray(node.lchild, tools, index);
+            tools[index++] = node.tool;
+            index = FillArray(node.rchild, tools, index);
         }
+        return index;
     }
 
 
