@@ -73,6 +73,8 @@ class Program
     {
         Console.WriteLine("\nTesting the ToArray function:");
         ITool[] tools = toolCollection.ToArray();
+        int operationCount = tools.Length;
+        Console.WriteLine($"Total operations performed: {operationCount}");
         Console.WriteLine("Tools in the Tool Collection (sorted alphabetically by name):");
         foreach (ITool tool in tools)
         {

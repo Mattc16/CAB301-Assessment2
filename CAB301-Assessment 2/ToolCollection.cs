@@ -147,15 +147,12 @@ partial class ToolCollection : IToolCollection
 
     // Return an array that contains all the tools in this tool collection and the tools in the array are sorted in the dictionary order by their names
     // Pre-condition: nil
-    // Post-condition: return an array that contains all the tools in this tool collection and the tools in the array are sorted in alphabetical order by their names and new Number = old Number.
-    private int operationCount = 0;
+    // Post-condition: return an array that contains all the tools in this tool collection and the tools in the array are sorted in alphabetical order by their names and new Number = old Number
     public ITool[] ToArray()
     {
-        operationCount = 0; // Reset the operation count
         int count = CountNodes(root);
         ITool[] tools = new ITool[count];
         FillArray(root, tools, 0);
-        Console.WriteLine($"Total operations performed: {operationCount}"); // Log the operation count
         return tools;
     }
 
@@ -171,7 +168,6 @@ partial class ToolCollection : IToolCollection
     {
         if (node != null)
         {
-            operationCount++; // Increment the operation count
             index = FillArray(node.lchild, tools, index);
             tools[index++] = node.tool;
             index = FillArray(node.rchild, tools, index);
